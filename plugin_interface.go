@@ -14,7 +14,7 @@ type PluginConfiger interface {
 }
 
 type File struct {
-	tpl string
+	Tpl string
 }
 
 type Folder map[string]interface{}
@@ -24,7 +24,7 @@ func (f *Folder) Gen(pth string, conf PluginConfiger) {
 		newPth := pth + "/" + name
 		switch item := file.(type) {
 		case File:
-			RenderTemplate(item.tpl, newPth, conf)
+			RenderTemplate(item.Tpl, newPth, conf)
 		case Folder:
 			err := os.Mkdir(newPth, os.ModePerm)
 			if err != nil {
