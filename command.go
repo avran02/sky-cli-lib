@@ -9,21 +9,53 @@ type OsCommand struct {
 	Args []CommandArg
 }
 
-// Return required and optional command arguments and flags
-func (cmd *OsCommand) ExtructArgs() map[string]bool {
-	args := make(map[string]bool)
-	for _, arg := range cmd.Args {
-		args[arg.Name] = arg.NeedGetFromUser
-	}
-	return args
-}
-
 // Describe argument or flag
 type CommandArg struct {
-	// Name of argument or flag. If it should be get from user, name it like "version".
-	// If if this arg is required, enter value like "v1.0.0"
+	// Desrcribes type of argument or flag.
+	//
+	// If it should be gotten from user, use FromUser struct.
+	//
+	// If if user can choose if arg needed, use FromUserBool struct.
+	//
+	// If you want to use predefined value use FromPlugin struct
+	Source source
+
+	// Name of argument or flag. You can keep it empty with FromPlugin source
 	Name string
 
-	// Is argument or flag should be gotten from user. If true, core will ask for value from user. All previously entered values will be shown
-	NeedGetFromUser bool
+	// Value of argument or flag. You shuold define this field only with FromPlugin source.
+	// In other cases value will be overwritten by user's value
+	Value string
+}
+
+// used if you need to get value from user
+//
+// example: enter plugin url: <user input>
+type FromUser struct{}
+
+func (FromUser) Get() string {
+	return "FromUser"
+}
+
+// used if you want to ask user if this flug needed
+//
+// example: -l needed for command 'ls' [Y/n]
+type FromUserBool struct{}
+
+func (FromUserBool) Get() string {
+	return "FromUserBool"
+}
+
+// used if you don'n want to ask user value
+//
+// example: init (for go mod <init> command)
+type FromPlugin struct{}
+
+func (FromPlugin) Get() string {
+	return "FromPlugin"
+}
+
+// Should be implemented only in FromUser, FromUserBool and FromPlugin
+type source interface {
+	Get() string
 }
